@@ -1,12 +1,13 @@
 from tkinter import *
 from urllib.request import urlopen, Request
+from fake_user_agent import user_agent
 from bs4 import BeautifulSoup
 import os
 
 tk = Tk()
 tk.resizable(True, True)
-screen_width = tk.winfo_screenwidth()*0.9
-screen_height = tk.winfo_screenheight()*0.8
+screen_width = tk.winfo_screenwidth()*1
+screen_height = tk.winfo_screenheight()*0.7
 w = Canvas(tk, width=screen_width, height=screen_height, bg="#282828")
 w.pack()
 
@@ -27,7 +28,7 @@ mangas.append("not in the list")
 def make_request(url, special=False):
     try:
         try:
-            request=Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            request=Request(url, headers={"User-Agent": user_agent()})
         except:
             request=Request(url)
         if special:
@@ -45,6 +46,7 @@ def download_file(url, name="test", manga="vanpanchmen"):
     if content!=None:
         with open(manga+"/"+name+".png", "b+w") as file:
             file.write(content)
+
             file.close()
     else:
         print(404)
@@ -87,7 +89,7 @@ def print_text(Text):
 
 
 def print_error(Text):
-	w.create_text(screen_width/2, screen_height/4, text=Text, fill="red", font="Times "+str(typeface/2), tag="error")
+	w.create_text(screen_width/2, screen_height/4, text=Text, fill="red", font="Times "+str(int(typeface/2)), tag="error")
 
 
 def select():
@@ -245,3 +247,4 @@ if __name__ == "__main__":
     btnq=Button(tk, text="quit", command=quit)
     btnq.pack()
     tk.mainloop()
+
