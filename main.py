@@ -60,7 +60,7 @@ def search_chapter(chapter, name="chernyy-klever-abs3TPx"):
 
 def get_pages(page):
     List = []
-    start = "https://static2.mangapoisk.ru/pages"
+    start = "https://static2.mangapoisk.com/pages"
     soup=BeautifulSoup(page, features="html.parser")
     interest=soup.find_all("img")
     links=[]
