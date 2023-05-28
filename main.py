@@ -1,13 +1,12 @@
 from tkinter import *
 from urllib.request import urlopen, Request
-from fake_user_agent import user_agent
 from bs4 import BeautifulSoup
 import os
 
 tk = Tk()
 tk.resizable(True, True)
-screen_width = tk.winfo_screenwidth()*1
-screen_height = tk.winfo_screenheight()*0.7
+screen_width = tk.winfo_screenwidth()*0.9
+screen_height = tk.winfo_screenheight()*0.8
 w = Canvas(tk, width=screen_width, height=screen_height, bg="#282828")
 w.pack()
 
@@ -26,9 +25,10 @@ mangas.append("not in the list")
 
 
 def make_request(url, special=False):
+    #ssl._create_default_https_context=ssl._create_unverified_context
     try:
         try:
-            request=Request(url, headers={"User-Agent": user_agent()})
+            request=Request(url, headers={"User-Agent": "Mozilla/5.0"})
         except:
             request=Request(url)
         if special:
@@ -42,23 +42,25 @@ def make_request(url, special=False):
 
 
 def download_file(url, name="test", manga="vanpanchmen"):
+    #download the image
     content=make_request(url)
     if content!=None:
         with open(manga+"/"+name+".png", "b+w") as file:
             file.write(content)
-
             file.close()
     else:
         print(404)
 
 
 def search_chapter(chapter, name="chernyy-klever-abs3TPx"):
+    #searching one specific chapter
     url="https://mangapoisk.ru/manga/"+name+"/chapter/"+str(chapter)
     content = str(make_request(url))
     return content
 
 
 def get_pages(page):
+    #getting pages from the website
     List = []
     start = "https://static2.mangapoisk.com/pages"
     soup=BeautifulSoup(page, features="html.parser")
@@ -76,6 +78,7 @@ def get_pages(page):
 
 
 def print_text(Text):
+    #showing text on gui
     text2 = Text.split()
     Text = ""
     spaces=round(0.006779*screen_width-2.37)
@@ -89,10 +92,12 @@ def print_text(Text):
 
 
 def print_error(Text):
+	#showing error on the gui
 	w.create_text(screen_width/2, screen_height/4, text=Text, fill="red", font="Times "+str(int(typeface/2)), tag="error")
 
 
 def select():
+    #one button
     global enter, btn
     option=variable.get()
     print(option)
@@ -110,6 +115,7 @@ def select():
 
 
 def select2():
+    #other button
     global opt, btn, variable
     name=str(enter.get())
     btn.destroy()
@@ -153,6 +159,7 @@ def select2():
 
 
 def select3():
+    #another button
     btn.destroy()
     name=variable.get()
     opt.destroy()
@@ -173,7 +180,7 @@ def verify_title(name):
 def select_chapter1(name):
     global FirstChapter, btn, last_chapter, NAME
     NAME = name
-    w.itemconfigure("text", state="hidden")
+    w.itemconfigure("text",state="hidden")
     if name not in mangas:
         with open("mangas.txt", "a") as file:
             file.write("\n"+name)
@@ -185,6 +192,7 @@ def select_chapter1(name):
     links=soup.find_all("meta")
     request=str(request)
     last_chapter = int(request[request.find(word):].split()[1])
+    summary="."
     for line in links:
         if "description" in str(line):
             summary = line.get("content")
@@ -211,6 +219,7 @@ def select_chapter2():
 
 
 def download_it():
+    #downloading procedure
     global last_chapter
     btnq.destroy()
     if first_chapter != last_chapter:
