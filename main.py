@@ -213,7 +213,7 @@ def select_chapter1(name):
             chapterList.append(chap)
             req=req[req.find("class"):]
     chapterList=chapterList[::-1]
-    last_chapter = int(request[request.find(word):].split()[1])
+    last_chapter = int(float(request[request.find(word):].split()[1]))
     summary="."
     for line in links:
         if "description" in str(line):
