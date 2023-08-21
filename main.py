@@ -2,7 +2,6 @@ from tkinter import *
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
 import os
-#import img2pdf
 
 tk = Tk()
 tk.resizable(True, True)
@@ -53,10 +52,9 @@ def download_file(url, name="test", manga="vanpanchmen"):
         print(404)
 
 
-def search_chapter(chapter, name="chernyy-klever-abs3TPx", extension=""):
+def search_chapter(chapter, name="chernyy-klever-abs3TPx"):
     #searching one specific chapter
-    url="https://mangapoisk.org/manga/"+name+"/chapter/"+str(chapter)+extension
-    #print(url)
+    url="https://mangapoisk.ru/manga/"+name+"/chapter/"+str(chapter)
     content = str(make_request(url))
     return content
 
@@ -64,7 +62,6 @@ def search_chapter(chapter, name="chernyy-klever-abs3TPx", extension=""):
 def get_pages(page):
     #getting pages from the website
     List = []
-    #print(page)
     start = "https://static2.mangapoisk.org/pages"
     soup=BeautifulSoup(page, features="html.parser")
     interest=soup.find_all("img")
@@ -126,12 +123,12 @@ def select2():
     w.itemconfigure("text", state="hidden")
     name=name.replace(" ", "+")
     try:
-        request=make_request("https://mangapoisk.org/manga/"+name)
+        request=make_request("https://mangapoisk.ru/manga/"+name)
     except:
         w.itemconfigure("error", state="hidden")
         request = None
     if request is None:
-        request=make_request("https://mangapoisk.org/search?q="+name)
+        request=make_request("https://mangapoisk.ru/search?q="+name)
         soup=BeautifulSoup(request, features="html.parser")
         links=soup.find_all("a")
         names = []
@@ -174,57 +171,37 @@ def select3():
 
 def verify_title(name):
 	"""because sometimes there is a difference"""
-	req=urlopen(Request("https://mangapoisk.org/manga/"+name, headers={"User-Agent":"Mozilla/5.0"}))
+	req=urlopen(Request("https://mangapoisk.ru/manga/"+name, headers={"User-Agent":"Mozilla/5.0"}))
 	url=req.geturl()
 	name=url[url.find("manga/")+6:]
 	return name
 
 
 def select_chapter1(name):
-    global FirstChapter, btn, last_chapter, NAME, chapterList
+    global FirstChapter, btn, last_chapter, NAME
     NAME = name
-    string='<li class="page-item"><a class="page-link"'
     w.itemconfigure("text",state="hidden")
-    print_text("loading...")
-    tk.update()
     if name not in mangas:
         with open("mangas.txt", "a") as file:
             file.write("\n"+name)
             file.close()
     os.makedirs(name, exist_ok=True)
-    #os.makedirs(name+"_pdf", exist_ok=True)
     word="Глава"  # sometimes there is a mistake in the number of chapters, so let's find the last chapter released!
-    request=make_request("https://mangapoisk.org/manga/"+NAME, True)
+    request=make_request("https://mangapoisk.ru/manga/"+NAME, True)
     soup=BeautifulSoup(request, features="html.parser")
     links=soup.find_all("meta")
     request=str(request)
-    #print(request)
-    chaptersLists = request.count(string)+1
-    chapterList=[]
-    for i in range(1, chaptersLists+1):
-        req=str(make_request("https://mangapoisk.org/manga/"+NAME+"/chaptersList?infinite=1&page="+str(i)))
-        while "/manga/"+NAME+"/chapter/" in req:
-            req=req[req.find("/manga/"+NAME+"/chapter/"):]
-            chap="https://mangapoisk.org"+req[:req.find('" ')]
-            chap=chap[::-1]
-            chap=chap[:chap.find("-")]+chap[chap.find("/"):]
-            chap=chap[::-1]
-            #print(chap)
-            chapterList.append(chap)
-            req=req[req.find("class"):]
-    chapterList=chapterList[::-1]
     last_chapter = int(request[request.find(word):].split()[1])
     summary="."
     for line in links:
         if "description" in str(line):
             summary = line.get("content")
             break
-    w.itemconfigure("text", state="hidden")
     print_text("CHAPTERS: "+str(last_chapter)+" -  "+summary)
     FirstChapter = Scale(tk, orient="horizontal", from_=1, to=last_chapter, resolution=1, tickinterval=last_chapter/5, length=screen_width, label="First chapter to download")
     FirstChapter.pack()
     btn=Button(text="Confirm", command=select_chapter2)
-    btn.place(x=screen_width*0.9/2, y=0)
+    btn.pack()
 
 
 def select_chapter2():
@@ -236,14 +213,14 @@ def select_chapter2():
         LastChapter = Scale(tk, orient="horizontal", from_=first_chapter, to=last_chapter, resolution=1, tickinterval=last_chapter/5, length=screen_width, label="Last chapter to download")
         LastChapter.pack()
         btn=Button(text="Confirm", command=download_it)
-        btn.place(x=screen_width*0.9/2, y=0)
+        btn.pack()
     else:
     	download_it()
 
 
 def download_it():
     #downloading procedure
-    global last_chapter, chapterList
+    global last_chapter
     btnq.destroy()
     if first_chapter != last_chapter:
         last_chapter = LastChapter.get()
@@ -256,52 +233,19 @@ def download_it():
         if chapter == 1:
             page = search_chapter(str("1-1"), NAME)
         else:
-            chap="https://mangapoisk.org/manga/"+NAME+"/chapter/"+str(chapter)
-            for i in range(len(chapterList)):
-                chapt=chapterList[i]
-                if chap in chapt:
-                    chaptersList=chapterList[i+1:]
-                    break
-            if "_" in chapt:
-                extension=chapt[chapt.find("_"):]
-                #print(extension)
-                page=search_chapter(str(chapter), NAME, extension)
-            else:
-                page = search_chapter(str(chapter), NAME)
+            page = search_chapter(str(chapter), NAME)
         l=get_pages(page)
         for i in range(len(l)):
             download_file(l[i], NAME+"_"+str(chapter)+"_"+str(i), NAME)
             w.itemconfigure("text", state="hidden")
             print_text("downloading chapter "+str(chapter)+" (on "+str(last_chapter)+"), page "+str(i+1)+" on "+str(len(l)))
             tk.update()
-    '''
-    w.itemconfigure("text", state="hidden")
-    print_text("Creating PDF file(s)...")
-    tk.update()
-    '''
-    files = os.listdir(NAME)
-    imagelist=[]
-    for chapter in range(first_chapter, last_chapter+1):
-        start=NAME+"_"+str(chapter)
-        for page in range(200):
-            #print(NAME+"/"+start+"_"+str(page)+".png")
-            if start+"_"+str(page)+".png" not in files:
-                with open(NAME+"_pdf/"+start+".pdf","wb") as f:
-                    f.write(img2pdf.convert(imagelist))
-                    imagelist=[]
-                    f.close()
-                    w.itemconfigure("text", state="hidden")
-                    #print_text("PDF chapter "+str(chapter)+" created")
-                    tk.update()
-                break
-            else:
-                imagelist.append(NAME+"/"+start+"_"+str(page)+".png")
     w.itemconfigure("text", state="hidden")
     print_text("Task Finished")
 
 
 if __name__ == "__main__":
-    #print(screen_width)
+    print(screen_width)
     variable = StringVar()
     variable.set(mangas[-1])
     opt = OptionMenu(tk, variable, *mangas)
