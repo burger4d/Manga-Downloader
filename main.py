@@ -277,7 +277,7 @@ def download_it():
         for i in range(len(l)):
             threads[i].join()
             w.itemconfigure("text", state="hidden")
-            print_text("downloading chapter "+str(chapter)+" (on "+str(last_chapter)+"), "+str(i+1)+"pages downloaded on "+str(len(l)))
+            print_text("downloading chapter "+str(chapter)+" (on "+str(last_chapter)+"), "+str(i+1)+" pages downloaded on "+str(len(l)))
             tk.update()
     '''
     w.itemconfigure("text", state="hidden")
