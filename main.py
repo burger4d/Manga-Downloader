@@ -3,7 +3,9 @@ from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
 import os
 import threading
-
+from PIL import Image as IMAGE
+import os
+import pathlib
 tk = Tk()
 tk.resizable(True, True)
 screen_width = tk.winfo_screenwidth()*0.9
@@ -24,6 +26,12 @@ if "mangas.txt" in os.listdir():
 
 mangas.append("not in the list")
 
+def images2pdf(listdir, chapter):
+    title=NAME
+    im=[]
+    for file in listdir:
+        im.append(IMAGE.open(str(pathlib.Path().resolve())+"/"+title+"/"+file))
+    im[0].save(str(pathlib.Path().resolve())+"/"+title+"_pdf/"+title+"#"+str(chapter)+".pdf", "PDF", resolution=100.0, save_all=True, append_images=im[1:])
 
 def make_request(url, special=False):
     #ssl._create_default_https_context=ssl._create_unverified_context
@@ -192,6 +200,7 @@ def select_chapter1(name):
             file.write("\n"+name)
             file.close()
     os.makedirs(name, exist_ok=True)
+    os.makedirs(name+"_pdf", exist_ok=True)
     #os.makedirs(name+"_pdf", exist_ok=True)
     word="Глава"  # sometimes there is a mistake in the number of chapters, so let's find the last chapter released!
     request=make_request("https://mangapoisk.org/manga/"+NAME, True)
@@ -287,30 +296,21 @@ def download_it():
             w.itemconfigure("text", state="hidden")
             print_text("downloading chapter "+str(chapter)+" (on "+str(last_chapter)+"), "+str(i+1)+"pages downloaded on "+str(len(l)))
             tk.update()
-    '''
+    
     w.itemconfigure("text", state="hidden")
     print_text("Creating PDF file(s)...")
     tk.update()
-    '''
     files = os.listdir(NAME)
     imagelist=[]
     for chapter in range(first_chapter, last_chapter+1):
+        imagelist=[]
         start=NAME+"_"+str(chapter)
+        print(files)
         for page in range(200):
-            #print(NAME+"/"+start+"_"+str(page)+".png")
-            if start+"_"+str(page)+".png" not in files:
-                """
-                with open(NAME+"_pdf/"+start+".pdf","wb") as f:
-                    f.write(img2pdf.convert(imagelist))
-                    imagelist=[]
-                    f.close()
-                    w.itemconfigure("text", state="hidden")
-                    print_text("PDF chapter "+str(chapter)+" created")
-                    tk.update()
-                break
-            else:
-                """
-                imagelist.append(NAME+"/"+start+"_"+str(page)+".png")
+            pagename=start+"_"+str(page)+".png"
+            if pagename in files:
+                imagelist.append(pagename)
+        images2pdf(imagelist, chapter)
     w.itemconfigure("text", state="hidden")
     print_text("Task Finished")
 
