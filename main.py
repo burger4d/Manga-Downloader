@@ -65,7 +65,7 @@ def get_pages(page):
     #getting pages from the website
     List = []
     #print(page)
-    start = "https://static2.mangapoisk.org/pages"
+    start = "https://static2.mangapoisk.me/pages"
     soup=BeautifulSoup(page, features="html.parser")
     interest=soup.find_all("img")
     links=[]
@@ -213,7 +213,15 @@ def select_chapter1(name):
             chapterList.append(chap)
             req=req[req.find("class"):]
     chapterList=chapterList[::-1]
-    last_chapter = int(float(request[request.find(word):].split()[1]))
+    a=request[request.find(word):]
+    b=request[a.find("volume"):]
+    c=b[b.find("volume"):]
+    d=c[c.find("lastChapter"):]
+    e=d[d.find("&quot;number&quot;:&quot;"):]
+    f=e[len("&quot;number&quot;:&quot;"):]
+    f=f[:f.find("&")]
+    last_chapter=int(float(f))
+    #last_chapter = int(float(request[request.find(word):].split()[1]))
     summary="."
     for line in links:
         if "description" in str(line):
@@ -277,7 +285,7 @@ def download_it():
         for i in range(len(l)):
             threads[i].join()
             w.itemconfigure("text", state="hidden")
-            print_text("downloading chapter "+str(chapter)+" (on "+str(last_chapter)+"), "+str(i+1)+" pages downloaded on "+str(len(l)))
+            print_text("downloading chapter "+str(chapter)+" (on "+str(last_chapter)+"), "+str(i+1)+"pages downloaded on "+str(len(l)))
             tk.update()
     '''
     w.itemconfigure("text", state="hidden")
