@@ -305,7 +305,6 @@ def download_it():
     for chapter in range(first_chapter, last_chapter+1):
         imagelist=[]
         start=NAME+"_"+str(chapter)
-        print(files)
         for page in range(200):
             pagename=start+"_"+str(page)+".png"
             if pagename in files:
