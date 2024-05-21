@@ -73,7 +73,7 @@ def get_pages(page):
     #getting pages from the website
     List = []
     #print(page)
-    start = "https://static2.mangapoisk.me/pages"
+    start = "https://static2.mangapoisk.net/pages"
     soup=BeautifulSoup(page, features="html.parser")
     interest=soup.find_all("img")
     links=[]
