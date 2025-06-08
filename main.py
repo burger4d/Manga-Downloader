@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 import os
 import threading
 from PIL import Image as IMAGE
+from PIL import features
+print(features.check_module("webp"))
 import os
 import pathlib
 tk = Tk()
@@ -63,7 +65,7 @@ def download_file(url, name="test", manga="vanpanchmen"):
 
 def search_chapter(chapter, name="chernyy-klever-abs3TPx", extension=""):
     #searching one specific chapter
-    url="https://mangapoisk.org/manga/"+name+"/chapter/"+str(chapter)+extension
+    url="https://mangapoisk.live/manga/"+name+"/chapter/"+str(chapter)+extension
     #print(url)
     content = str(make_request(url))
     return content
@@ -73,7 +75,7 @@ def get_pages(page):
     #getting pages from the website
     List = []
     #print(page)
-    start = "https://static2.mangapoisk.net/pages"
+    start = "https://static2.mangapoisk.live/pages"
     soup=BeautifulSoup(page, features="html.parser")
     interest=soup.find_all("img")
     links=[]
@@ -103,8 +105,8 @@ def print_text(Text):
 
 
 def print_error(Text):
-	#showing error on the gui
-	w.create_text(screen_width/2, screen_height/4, text=Text, fill="red", font="Times "+str(int(typeface/2)), tag="error")
+        #showing error on the gui
+        w.create_text(screen_width/2, screen_height/4, text=Text, fill="red", font="Times "+str(int(typeface/2)), tag="error")
 
 
 def select():
@@ -134,12 +136,12 @@ def select2():
     w.itemconfigure("text", state="hidden")
     name=name.replace(" ", "+")
     try:
-        request=make_request("https://mangapoisk.org/manga/"+name)
+        request=make_request("https://mangapoisk.live/manga/"+name)
     except:
         w.itemconfigure("error", state="hidden")
         request = None
     if request is None:
-        request=make_request("https://mangapoisk.org/search?q="+name)
+        request=make_request("https://mangapoisk.live/search?q="+name)
         soup=BeautifulSoup(request, features="html.parser")
         links=soup.find_all("a")
         names = []
@@ -181,11 +183,11 @@ def select3():
 
 
 def verify_title(name):
-	"""because sometimes there is a difference"""
-	req=urlopen(Request("https://mangapoisk.org/manga/"+name, headers={"User-Agent":"Mozilla/5.0"}))
-	url=req.geturl()
-	name=url[url.find("manga/")+6:]
-	return name
+        """because sometimes there is a difference"""
+        req=urlopen(Request("https://mangapoisk.live/manga/"+name, headers={"User-Agent":"Mozilla/5.0"}))
+        url=req.geturl()
+        name=url[url.find("manga/")+6:]
+        return name
 
 
 def select_chapter1(name):
@@ -202,8 +204,8 @@ def select_chapter1(name):
     os.makedirs(name, exist_ok=True)
     os.makedirs(name+"_pdf", exist_ok=True)
     #os.makedirs(name+"_pdf", exist_ok=True)
-    word="Глава"  # sometimes there is a mistake in the number of chapters, so let's find the last chapter released!
-    request=make_request("https://mangapoisk.org/manga/"+NAME, True)
+    word="Глава" # sometimes there is a mistake in the number of chapters, so let's find the last chapter released!
+    request=make_request("https://mangapoisk.live/manga/"+NAME, True)
     soup=BeautifulSoup(request, features="html.parser")
     links=soup.find_all("meta")
     request=str(request)
@@ -211,10 +213,10 @@ def select_chapter1(name):
     chaptersLists = request.count(string)+1
     chapterList=[]
     for i in range(1, chaptersLists+1):
-        req=str(make_request("https://mangapoisk.org/manga/"+NAME+"/chaptersList?infinite=1&page="+str(i)))
+        req=str(make_request("https://mangapoisk.live/manga/"+NAME+"/chaptersList?infinite=1&page="+str(i)))
         while "/manga/"+NAME+"/chapter/" in req:
             req=req[req.find("/manga/"+NAME+"/chapter/"):]
-            chap="https://mangapoisk.org"+req[:req.find('" ')]
+            chap="https://mangapoisk.live"+req[:req.find('" ')]
             chap=chap[::-1]
             chap=chap[:chap.find("-")]+chap[chap.find("/"):]
             chap=chap[::-1]
@@ -237,7 +239,7 @@ def select_chapter1(name):
             summary = line.get("content")
             break
     w.itemconfigure("text", state="hidden")
-    print_text("CHAPTERS: "+str(last_chapter)+" -  "+summary)
+    print_text("CHAPTERS: "+str(last_chapter)+" - "+summary)
     FirstChapter = Scale(tk, orient="horizontal", from_=1, to=last_chapter, resolution=1, tickinterval=last_chapter/5, length=screen_width, label="First chapter to download")
     FirstChapter.pack()
     btn=Button(text="Confirm", command=select_chapter2)
@@ -255,7 +257,7 @@ def select_chapter2():
         btn=Button(text="Confirm", command=download_it)
         btn.place(x=screen_width*0.9/2, y=0)
     else:
-    	download_it()
+            download_it()
 
 
 def download_it():
@@ -273,7 +275,7 @@ def download_it():
         if chapter == 1:
             page = search_chapter(str("1-1"), NAME)
         else:
-            chap="https://mangapoisk.org/manga/"+NAME+"/chapter/"+str(chapter)
+            chap="https://mangapoisk.live/manga/"+NAME+"/chapter/"+str(chapter)
             for i in range(len(chapterList)):
                 chapt=chapterList[i]
                 if chap in chapt:
@@ -296,7 +298,7 @@ def download_it():
             w.itemconfigure("text", state="hidden")
             print_text("downloading chapter "+str(chapter)+" (on "+str(last_chapter)+"), "+str(i+1)+"pages downloaded on "+str(len(l)))
             tk.update()
-    
+
     w.itemconfigure("text", state="hidden")
     print_text("Creating PDF file(s)...")
     tk.update()
@@ -305,6 +307,7 @@ def download_it():
     for chapter in range(first_chapter, last_chapter+1):
         imagelist=[]
         start=NAME+"_"+str(chapter)
+        print(files)
         for page in range(200):
             pagename=start+"_"+str(page)+".png"
             if pagename in files:
